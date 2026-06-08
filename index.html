@@ -61,6 +61,12 @@
                     <p class="text-xs text-blue-100 opacity-90 font-medium">초등 4학년 사회과 연계 나만의 캐릭터 실사화 프로젝트</p>
                 </div>
             </div>
+            
+            <!-- Sleek API Settings configuration Button -->
+            <button type="button" onclick="openApiKeyModal()" class="bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold py-1.5 px-4 rounded-full text-xs flex items-center gap-1.5 transition-all shadow-sm">
+                <i class="fa-solid fa-key"></i>
+                <span>⚙️ AI 실사 키 설정</span>
+            </button>
         </div>
     </header>
 
@@ -193,14 +199,21 @@
             <div class="bg-gradient-to-br from-busanBlue to-blue-700 rounded-2xl p-5 text-white shadow-md">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div class="text-center sm:text-left">
-                        <h3 class="text-base font-bold heading-font flex items-center justify-center sm:justify-start gap-1">
-                            🎨 실물 크리에이터 제작소 가동 준비 완료!
-                        </h3>
-                        <p class="text-xs text-blue-100 mt-1 opacity-90 leading-relaxed">준비되셨나요? 제작하기 버튼을 누르면 AI가 캐릭터를 멋진 상품으로 제작합니다.</p>
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1.5">
+                            <h3 class="text-base font-bold heading-font">
+                                🎨 실물 크리에이터 제작소 가동 준비 완료!
+                            </h3>
+                            <!-- Realtime status indicator badge of API validation -->
+                            <span id="api-mode-badge" onclick="openApiKeyModal()" class="text-[9px] bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full font-bold cursor-pointer">
+                                검사 중...
+                            </span>
+                        </div>
+                        <p class="text-xs text-blue-100 opacity-90 leading-relaxed">준비되셨나요? 제작하기 버튼을 누르면 AI가 캐릭터를 멋진 상품으로 제작합니다.</p>
                     </div>
-                    <button type="button" onclick="startGenerationFlow()" id="btn-generate" class="w-full sm:w-auto bg-busanYellow hover:bg-amber-400 text-slate-900 heading-font px-6 py-3.5 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] flex items-center justify-center gap-2 transition-all text-sm font-black shrink-0">
-                        <i class="fa-solid fa-wand-magic-sparkles text-lg animate-pulse"></i>
-                        <span>AI 상품 제작하기</span>
+                    <!-- Upgraded Yellow Premium Trigger Button according to image_03ae25.png -->
+                    <button type="button" onclick="startGenerationFlow()" id="btn-generate" class="w-full sm:w-auto bg-amber-400 hover:bg-amber-500 text-slate-900 heading-font px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] flex items-center justify-center gap-2 transition-all text-sm font-black shrink-0">
+                        <span class="text-xl">🪄</span>
+                        <span>AI 굿즈 실사화 시작!</span>
                     </button>
                 </div>
             </div>
@@ -210,22 +223,30 @@
         <!-- Right Column: Interactive Canvas & Generative Output Area (5 cols) -->
         <section class="lg:col-span-5 flex flex-col gap-6">
             
-            <!-- Realtime Product Mockup Generator Output Window -->
-            <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-200/80 flex flex-col justify-between h-full min-h-[500px]">
+            <!-- Realtime Product Mockup Generator Output Window (Light/Dark Fluid Design Theme) -->
+            <div id="output-card" class="bg-white rounded-3xl p-6 shadow-md border border-slate-200/80 flex flex-col justify-between h-full min-h-[500px] transition-all duration-300">
                 
                 <!-- Display Section Header -->
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4" id="output-header-container">
                     <div class="flex items-center gap-2">
-                        <span class="text-xl">🎁</span>
-                        <h3 class="text-base font-bold heading-font text-slate-800">상품 완성 매장</h3>
+                        <span class="text-xl" id="output-header-icon">🎁</span>
+                        <h3 class="text-base font-bold heading-font text-slate-800" id="output-header-title">상품 완성 매장</h3>
                     </div>
                     <span id="status-badge" class="bg-amber-500/10 text-amber-600 border border-amber-300/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
                         대기 중
                     </span>
                 </div>
 
+                <!-- Sleek Watermark Floating product Title (Watermark Title like in the user's high-end screenshot) -->
+                <div id="success-product-title" class="hidden text-left mb-4 animate-in fade-in slide-in-from-top-3 duration-300">
+                    <h4 class="text-lg md:text-xl font-extrabold heading-font text-white flex items-center gap-2">
+                        <span id="success-emoji" class="text-2xl">🏅</span>
+                        <span id="success-name">[고급 금속 뱃지] 완성 상품</span>
+                    </h4>
+                </div>
+
                 <!-- Image Display Sandbox with Loading / Fallback / Success States -->
-                <div class="flex-grow flex items-center justify-center bg-slate-50 rounded-2xl border border-slate-100 relative overflow-hidden p-3 min-h-[340px] shadow-inner">
+                <div class="flex-grow flex items-center justify-center bg-slate-50 rounded-2xl border border-slate-100 relative overflow-hidden p-3 min-h-[340px] shadow-inner" id="sandbox-wrapper">
                     
                     <!-- 1. Wait/Intro Slate -->
                     <div id="state-intro" class="text-center p-6 flex flex-col items-center gap-3">
@@ -265,7 +286,7 @@
                         <img id="result-img" class="max-w-full max-h-80 object-contain rounded-xl shadow-lg border border-slate-200/50 bg-white" alt="AI 완성된 상품">
                         
                         <!-- Floating Stamp Info -->
-                        <div class="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[9px] flex items-center gap-1.5">
+                        <div class="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[9px] flex items-center gap-1.5" id="floating-badge-container">
                             <span id="badge-goods">🏅 고급 금속 뱃지</span>
                         </div>
                     </div>
@@ -273,11 +294,11 @@
                 </div>
 
                 <!-- Actions Controls for finalized image output -->
-                <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2">
+                <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2" id="output-footer-container">
                     <div class="grid grid-cols-1" id="result-actions" style="pointer-events: none; opacity: 0.5;">
-                        <button type="button" onclick="downloadResult()" class="bg-busanBlue hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md">
+                        <button type="button" id="btn-download" onclick="downloadResult()" class="bg-busanBlue hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md">
                             <i class="fa-solid fa-download text-sm"></i>
-                            <span>태블릿에 저장하기 (갤러리에 저장)</span>
+                            <span id="btn-download-text">태블릿에 저장하기 (갤러리에 저장)</span>
                         </button>
                     </div>
                 </div>
@@ -287,6 +308,46 @@
         </section>
 
     </main>
+
+    <!-- API Key Settings Modal Backdrop -->
+    <div id="api-key-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center text-xl">
+                        🔑
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold heading-font text-slate-800">AI 실사 사진제작 열쇠 설정</h3>
+                        <p class="text-[10px] text-slate-400 font-medium">Vercel 배포본에서 실물 사진을 뽑기 위한 설정</p>
+                    </div>
+                </div>
+                <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    선생님! 플랫폼 미리보기 환경에서는 API 키가 자동 입력되어 작동하지만, <strong>Vercel로 개별 배포한 사이트</strong>에서는 구글의 정책상 <strong>직접 발급받은 Gemini API Key</strong>가 필요합니다.
+                </p>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/60">
+                    <a href="https://aistudio.google.com/" target="_blank" class="text-xs text-busanBlue font-bold hover:underline flex items-center gap-1">
+                        🚀 무료 구글 API Key 발급받기 (Google AI Studio) <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                    <p class="text-[10px] text-slate-400 mt-1">구글 로그인 후 몇 초 만에 무료로 발급받으실 수 있습니다.</p>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-1.5">🔑 Gemini API Key 입력</label>
+                    <input type="password" id="api-key-input" placeholder="AI_key_..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-mono focus:outline-none focus:border-busanBlue transition-all">
+                    <p class="text-[9px] text-slate-400 mt-1">이 키는 외부 서버에 절대 전송되지 않으며, 사용자 브라우저(태블릿)의 안전한 로컬 저장소에만 보관됩니다.</p>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="saveApiKey()" class="flex-1 bg-busanBlue hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md">저장하기</button>
+                    <button onclick="deleteApiKey()" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-4 py-2.5 rounded-xl text-xs transition-all">지우기</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-slate-800 text-slate-400 text-center py-6 border-t border-slate-700 text-xs">
@@ -341,6 +402,59 @@
             <path d="M 50 18 L 50 21" fill="none" stroke="#5C2A29" stroke-width="2.2" stroke-linecap="round"/>
             <text x="50" y="93" font-family="sans-serif" font-size="8" font-weight="bold" fill="#5C2A29" text-anchor="middle">양정동 배롱나무</text>
         </svg>`;
+
+        // API Key configuration logic
+        function getSavedApiKey() {
+            return localStorage.getItem('gemini_api_key') || "";
+        }
+
+        function openApiKeyModal() {
+            document.getElementById('api-key-input').value = getSavedApiKey();
+            document.getElementById('api-key-modal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('api-key-modal').classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            if (!key) {
+                createBanner('⚠️ API Key를 올바르게 입력해 주세요.', 'error');
+                return;
+            }
+            localStorage.setItem('gemini_api_key', key);
+            createBanner('🔑 API Key가 안전하게 보관되었습니다! 이제 실사 사진 제작이 가능합니다.', 'success');
+            updateApiKeyBadge();
+            closeApiKeyModal();
+        }
+
+        function deleteApiKey() {
+            localStorage.removeItem('gemini_api_key');
+            document.getElementById('api-key-input').value = "";
+            createBanner('🗑️ API Key가 정상 삭제되었습니다. 이제 모형 모드로 동작합니다.', 'info');
+            updateApiKeyBadge();
+            closeApiKeyModal();
+        }
+
+        function updateApiKeyBadge() {
+            const badge = document.getElementById('api-mode-badge');
+            const hasKey = getSavedApiKey() !== "";
+            if (badge) {
+                if (hasKey) {
+                    badge.textContent = "✨ AI 실사 모드 가동 중";
+                    badge.className = "text-[10px] bg-emerald-100 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold cursor-pointer";
+                } else {
+                    badge.textContent = "⚡ 기본 모형 모드 (Vercel 배포)";
+                    badge.className = "text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 rounded-full font-bold cursor-pointer";
+                }
+            }
+        }
+
+        // Initialize API badge display status on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateApiKeyBadge();
+        });
 
         // Helper function to draw star shapes for style backgrounds
         function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
@@ -576,20 +690,20 @@
                 progress.style.width = `100%`;
                 
                 const goodsKorean = {
-                    badge: '🏅 프리미엄 금속 뱃지',
-                    keyring: '🧸 가방에 매달린 아크릴 키링',
-                    griptok: '📱 폰부착 3D 스마트 톡',
-                    mug: '☕ 도자기 머그컵',
-                    ecobag: '👜 자수 에코백',
-                    notebook: '📒 친환경 줄노트',
-                    moodlight: '💡 감성 무드등',
-                    tumbler: '🥤 스테인리스 텀블러',
-                    umbrella: '🌂 친환경 우산/양산'
+                    badge: '고급 금속 뱃지',
+                    keyring: '아크릴 키링',
+                    griptok: '폰부착 스마트톡',
+                    mug: '도자기 머그컵',
+                    ecobag: '자수 에코백',
+                    notebook: '줄 노트 표지',
+                    moodlight: '감성 무드등',
+                    tumbler: '텀블러',
+                    umbrella: '우산/양산'
                 };
 
-                document.getElementById('badge-goods').textContent = goodsKorean[selectedGoods];
-                
+                document.getElementById('badge-goods').textContent = `🏅 ${goodsKorean[selectedGoods]}`;
                 document.getElementById('result-img').src = generatedImageUrl;
+                
                 toggleSandboxState('success');
                 
                 // Trigger celebratory confetti!
@@ -603,7 +717,7 @@
 
             } catch (err) {
                 clearInterval(interval);
-                console.error(err);
+                console.warn("실사 AI 합성 실패 또는 API 키 없음: 고정밀 로컬 3D 시뮬레이션 모드로 전환합니다.", err);
                 
                 // Fallback option automatically kicks in for frictionless classroom environments
                 title.textContent = '🎨 하이엔드 로컬 합성 엔진 가동...';
@@ -613,20 +727,20 @@
                 generatedImageUrl = await generateLocalSimulatedMockImage();
                 
                 const goodsKorean = {
-                    badge: '🏅 프리미엄 금속 뱃지',
-                    keyring: '🧸 가방에 매달린 아크릴 키링',
-                    griptok: '📱 폰부착 3D 스마트 톡',
-                    mug: '☕ 도자기 머그컵',
-                    ecobag: '👜 자수 에코백',
-                    notebook: '📒 친환경 줄노트',
-                    moodlight: '💡 감성 무드등',
-                    tumbler: '🥤 스테인리스 텀블러',
-                    umbrella: '🌂 친환경 우산/양산'
+                    badge: '고급 금속 뱃지',
+                    keyring: '아크릴 키링',
+                    griptok: '폰부착 스마트톡',
+                    mug: '도자기 머그컵',
+                    ecobag: '자수 에코백',
+                    notebook: '줄 노트 표지',
+                    moodlight: '감성 무드등',
+                    tumbler: '텀블러',
+                    umbrella: '우산/양산'
                 };
 
-                document.getElementById('badge-goods').textContent = goodsKorean[selectedGoods];
-                
+                document.getElementById('badge-goods').textContent = `🏅 ${goodsKorean[selectedGoods]}`;
                 document.getElementById('result-img').src = generatedImageUrl;
+                
                 toggleSandboxState('success');
                 
                 confetti({
@@ -642,13 +756,23 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        // Switch Right column Preview Window states
+        // Switch Right column Preview Window states (Now supports dynamic Dark Navy Cinema Studio theme)
         function toggleSandboxState(state) {
             const intro = document.getElementById('state-intro');
             const loading = document.getElementById('state-loading');
             const success = document.getElementById('state-success');
             const actions = document.getElementById('result-actions');
-            const badge = document.getElementById('status-badge');
+            
+            const outputCard = document.getElementById('output-card');
+            const outputHeaderContainer = document.getElementById('output-header-container');
+            const outputHeaderTitle = document.getElementById('output-header-title');
+            const outputHeaderIcon = document.getElementById('output-header-icon');
+            const statusBadge = document.getElementById('status-badge');
+            const successProductTitle = document.getElementById('success-product-title');
+            const successEmoji = document.getElementById('success-emoji');
+            const successName = document.getElementById('success-name');
+            const btnDownload = document.getElementById('btn-download');
+            const btnDownloadText = document.getElementById('btn-download-text');
 
             intro.classList.add('hidden');
             loading.classList.add('hidden');
@@ -658,27 +782,81 @@
                 intro.classList.remove('hidden');
                 actions.style.pointerEvents = 'none';
                 actions.style.opacity = '0.5';
-                badge.textContent = '대기 중';
-                badge.className = "bg-amber-500/10 text-amber-600 border border-amber-300/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full";
+                
+                // Normal Light theme look
+                outputCard.className = "bg-white text-slate-800 rounded-3xl p-6 shadow-md border border-slate-200/80 flex flex-col justify-between h-full min-h-[500px] transition-all duration-300";
+                outputHeaderContainer.className = "flex items-center justify-between border-b border-slate-100 pb-3 mb-4";
+                outputHeaderTitle.className = "text-base font-bold heading-font text-slate-800";
+                outputHeaderTitle.textContent = "상품 완성 매장";
+                outputHeaderIcon.textContent = "🎁";
+                
+                statusBadge.textContent = "대기 중";
+                statusBadge.className = "bg-amber-500/10 text-amber-600 border border-amber-300/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full";
+                successProductTitle.classList.add('hidden');
+                
+                btnDownload.className = "bg-busanBlue hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md";
+                btnDownloadText.textContent = "태블릿에 저장하기 (갤러리에 저장)";
             } else if (state === 'loading') {
                 loading.classList.remove('hidden');
                 actions.style.pointerEvents = 'none';
                 actions.style.opacity = '0.5';
-                badge.textContent = '생성 중 🪄';
-                badge.className = "bg-busanBlue/10 text-busanBlue border border-busanBlue/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full animate-pulse";
+                
+                // Normal Light theme look
+                outputCard.className = "bg-white text-slate-800 rounded-3xl p-6 shadow-md border border-slate-200/80 flex flex-col justify-between h-full min-h-[500px] transition-all duration-300";
+                outputHeaderContainer.className = "flex items-center justify-between border-b border-slate-100 pb-3 mb-4";
+                outputHeaderTitle.className = "text-base font-bold heading-font text-slate-800";
+                outputHeaderTitle.textContent = "상품 완성 매장";
+                outputHeaderIcon.textContent = "🎁";
+                
+                statusBadge.textContent = "생성 중 🪄";
+                statusBadge.className = "bg-busanBlue/10 text-busanBlue border border-busanBlue/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full animate-pulse";
+                successProductTitle.classList.add('hidden');
+                
+                btnDownload.className = "bg-busanBlue hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md";
+                btnDownloadText.textContent = "태블릿에 저장하기 (갤러리에 저장)";
             } else if (state === 'success') {
                 success.classList.remove('hidden');
                 actions.style.pointerEvents = 'auto';
                 actions.style.opacity = '1';
-                badge.textContent = '제작 완료 ⭐';
-                badge.className = "bg-emerald-500/10 text-emerald-600 border border-emerald-300/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full";
+                
+                // Ultra Premium Dark Navy Cinema Theme as shown in the user's high-end screenshots!
+                outputCard.className = "bg-[#0f172a] text-white rounded-3xl p-6 shadow-2xl border border-slate-800 flex flex-col justify-between h-full min-h-[500px] transition-all duration-300";
+                outputHeaderContainer.className = "flex items-center justify-between border-b border-slate-800 pb-3 mb-4";
+                outputHeaderTitle.className = "text-xs font-bold tracking-wider text-slate-400 uppercase";
+                outputHeaderTitle.textContent = "실물 완성 제품 촬영본";
+                outputHeaderIcon.textContent = "📷";
+                
+                statusBadge.textContent = "제작 성공 ✨";
+                statusBadge.className = "bg-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md animate-bounce";
+                
+                // Set custom emoji and product name dynamically matching the reference screenshot design
+                const goodsEmojis = {
+                    badge: '🏅', keyring: '🧸', griptok: '📱', mug: '☕',
+                    ecobag: '👜', notebook: '📒', moodlight: '💡', tumbler: '🥤', umbrella: '🌂'
+                };
+                const goodsKorean = {
+                    badge: '고급 금속 뱃지', keyring: '아크릴 키링', griptok: '폰부착 스마트톡', mug: '도자기 머그컵',
+                    ecobag: '자수 에코백', notebook: '줄 노트 표지', moodlight: '감성 무드등', tumbler: '텀블러', umbrella: '우산/양산'
+                };
+                
+                successEmoji.textContent = goodsEmojis[selectedGoods] || '🎁';
+                successName.textContent = `[${goodsKorean[selectedGoods] || '선택 상품'}] 완성 상품`;
+                successProductTitle.classList.remove('hidden');
+                
+                // Full-width Rich Purple Download Button
+                btnDownload.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-4 rounded-2xl text-sm flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]";
+                btnDownloadText.textContent = "📥 내 상품 사진 저장하기";
             }
         }
 
-        // CALL REAL GEMINI API FOR IMAGE GENERATION / EDITING
+        // CALL REAL GEMINI API FOR IMAGE GENERATION / EDITING (Optimized dual-channel logic)
         async function callGeminiImageToImageAPI() {
-            // Environment automatically provides workspace key
-            const apiKey = ""; 
+            // First try reading user-configured custom key
+            let apiKey = localStorage.getItem('gemini_api_key') || "";
+            
+            // DO NOT throw error immediately if empty! 
+            // In platform previews, the iframe proxy intercepts and injects the active key.
+            // If we are on Vercel and it's empty, the fetch call itself fails, triggering catch fallback smoothly.
             
             const goodsPrompt = {
                 badge: 'A high-end, close-up photograph of a metallic enamel lapel pin badge attached to a stylish denim jacket collar. The badge has a brilliant, slightly thick raised gold metal border defining the character outline, filled with vivid glossy colored enamel. It reflects warm sunlight realistically and shows a tiny physical pin clutch depression behind it.',
@@ -823,7 +1001,7 @@
                     } else if (a > 30) {
                         // Blend and stylize drawing pixels
                         if (mode === 'gold') {
-                            // Turn student drawing lines into premium metallic gold foil
+                            // Turn student drawing lines into premium metallic gold foil (used for glowing lights)
                             data[i] = 233;   // Gold R
                             data[i+1] = 177; // G
                             data[i+2] = 73;  // B
@@ -1019,8 +1197,9 @@
                 ctx.arc(300, 300, 86, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Draw student drawing cleanly with gold lines inside enamel base
-                drawProcessedImage(ctx, img, 215, 215, 170, 170, 'gold');
+                // Draw student drawing cleanly inside enamel (Enamel has colourful filled fields inside gold rims!)
+                // Use 'normal' instead of 'gold' to retain character color details
+                drawProcessedImage(ctx, img, 215, 215, 170, 170, 'normal');
 
                 // Enamel 3D glossy dome specular shine overlay
                 const enamelGrad = ctx.createLinearGradient(200, 200, 400, 400);
@@ -1297,8 +1476,8 @@
                 ctx.fillStyle = '#94a3b8';
                 roundRect(ctx, 202, 158, 196, 16, 5, true, false);
 
-                // Shiny metallic gold foil character print on front
-                drawProcessedImage(ctx, img, 225, 210, 150, 150, 'gold');
+                // Print colorful character on front beautifully (Normal instead of Gold)
+                drawProcessedImage(ctx, img, 225, 210, 150, 150, 'normal');
 
                 // Specular cylinder 3D lighting shadow layer
                 const tubGrad = ctx.createLinearGradient(210, 0, 390, 0);
