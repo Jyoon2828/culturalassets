@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚓ 국가유산 캐릭터 상품 제작소</title>
+    <!-- Tailwind CSS for modern, responsive layouts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for cute, child-friendly typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti for victory celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        jua: ['Jua', 'sans-serif'],
+                        nanum: ['Nanum Gothic', 'sans-serif'],
+                    },
+                    colors: {
+                        busanBlue: '#0057B7',
+                        busanOrange: '#FF7043',
+                        busanYellow: '#FFCA28',
+                        busanMint: '#26A69A',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Nanum Gothic', sans-serif;
+            background-color: #f3f8ff;
+            background-image: radial-gradient(#e0e9f6 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .heading-font {
+            font-family: 'Jua', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Navigation / Header -->
+    <header class="bg-gradient-to-r from-busanBlue via-cyan-600 to-busanMint text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-white p-2 rounded-full shadow-md animate-bounce">
+                    <span class="text-2xl">⚓</span>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl heading-font tracking-wide flex items-center gap-2">
+                        국가유산 캐릭터 상품 제작소
+                    </h1>
+                    <p class="text-xs text-blue-100 opacity-90 font-medium">초등 4학년 사회과 연계 나만의 캐릭터 실사화 프로젝트</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="max-w-5xl w-full mx-auto p-4 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 my-4">
+        
+        <!-- Left Column: Inputs & Customization (7 cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- Step 1: Upload Student Character Drawing -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full bg-busanOrange text-white flex items-center justify-center font-bold text-sm heading-font">1</span>
+                        <h2 class="text-lg font-bold heading-font text-slate-800">그린 캐릭터 이미지 올리기</h2>
+                    </div>
+                    <button type="button" onclick="useDefaultCharacter()" class="text-xs text-busanBlue font-semibold hover:underline flex items-center gap-1 bg-blue-50 px-2.5 py-1.5 rounded-full">
+                        🌸 그림이 없어요! 배롱나무 캐릭터 쓰기
+                    </button>
+                </div>
+                <p class="text-xs text-slate-500 mb-4">스케치북 앱이나 태블릿으로 그린 멋진 나만의 캐릭터 그림 파일(PNG, JPG)을 업로드하세요.</p>
+                
+                <div class="flex flex-col md:flex-row gap-4 items-stretch">
+                    <!-- Drop Area / Upload -->
+                    <div class="flex-1 border-2 border-dashed border-slate-300 hover:border-busanBlue bg-slate-50 hover:bg-blue-50/20 rounded-2xl p-4 flex flex-col justify-center items-center gap-3 transition-all cursor-pointer relative" id="drop-zone">
+                        <input type="file" id="file-upload" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleFileSelect(event)">
+                        <div class="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400" id="upload-icon-container">
+                            <i class="fa-solid fa-cloud-arrow-up text-xl text-busanBlue"></i>
+                        </div>
+                        <div class="text-center" id="upload-text-container">
+                            <p class="text-xs font-bold text-slate-700">그림 파일을 드래그하거나 클릭하세요</p>
+                            <p class="text-[10px] text-slate-400 mt-1">배경이 투명하지 않은 스케치도 AI가 예쁘게 따서 합성해 줘요!</p>
+                        </div>
+                    </div>
+
+                    <!-- Image Preview Card -->
+                    <div class="w-full md:w-44 border border-slate-200/80 rounded-2xl bg-slate-50 p-3 flex flex-col items-center justify-center relative min-h-[140px]">
+                        <p class="text-[10px] text-slate-400 absolute top-2 left-3 font-semibold">내 캐릭터 스케치</p>
+                        <button type="button" id="btn-remove-image" onclick="clearUploadedImage()" class="hidden absolute top-2 right-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-full w-5 h-5 flex items-center justify-center transition-all">
+                            <i class="fa-solid fa-xmark text-[10px]"></i>
+                        </button>
+                        <div class="w-24 h-24 flex items-center justify-center rounded-xl bg-white border border-slate-200 overflow-hidden shadow-inner mt-2">
+                            <img id="upload-preview" src="https://placehold.co/150x150/f1f5f9/94a3b8?text=스케치" class="max-w-full max-h-full object-contain" alt="캐릭터 스케치">
+                        </div>
+                        <span id="upload-status-text" class="text-[10px] text-slate-400 mt-2 font-medium">대기 중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Goods Styling Customization -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="w-7 h-7 rounded-full bg-busanOrange text-white flex items-center justify-center font-bold text-sm heading-font">2</span>
+                    <h2 class="text-lg font-bold heading-font text-slate-800">상품 종류와 스타일 고르기</h2>
+                </div>
+                <p class="text-xs text-slate-500 mb-4">내 캐릭터를 어떤 멋진 상품으로 실사화할지 상상하며 꾸며보세요!</p>
+
+                <!-- Goods Type Selection -->
+                <div class="mb-5">
+                    <label class="text-xs font-bold text-slate-700 block mb-2">🛍️ 어떤 상품(MD)으로 제작할까요?</label>
+                    <div class="grid grid-cols-3 gap-2" id="goods-selector">
+                        <button type="button" onclick="selectGoods('badge')" id="btn-goods-badge" class="goods-btn border border-busanBlue/40 bg-blue-50/40 text-busanBlue font-bold rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-blue-50">
+                            <span class="text-xl">🏅</span>
+                            <span class="text-[10px] whitespace-nowrap">고급 금속 뱃지</span>
+                        </button>
+                        <button type="button" onclick="selectGoods('keyring')" id="btn-goods-keyring" class="goods-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-xl">🧸</span>
+                            <span class="text-[10px] whitespace-nowrap">아크릴 키링</span>
+                        </button>
+                        <button type="button" onclick="selectGoods('griptok')" id="btn-goods-griptok" class="goods-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-xl">📱</span>
+                            <span class="text-[10px] whitespace-nowrap">폰부착 스마트톡</span>
+                        </button>
+                        <button type="button" onclick="selectGoods('mug')" id="btn-goods-mug" class="goods-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-xl">☕</span>
+                            <span class="text-[10px] whitespace-nowrap">도자기 머그컵</span>
+                        </button>
+                        <button type="button" onclick="selectGoods('ecobag')" id="btn-goods-ecobag" class="goods-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-xl">👜</span>
+                            <span class="text-[10px] whitespace-nowrap">자수 에코백</span>
+                        </button>
+                        <button type="button" onclick="selectGoods('notebook')" id="btn-goods-notebook" class="goods-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-xl">📒</span>
+                            <span class="text-[10px] whitespace-nowrap">줄 노트 표지</span>
+                        </button>
+                        <button type="button" onclick="selectGoods('moodlight')" id="btn-goods-moodlight" class="goods-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-xl">💡</span>
+                            <span class="text-[10px] whitespace-nowrap">감성 무드등</span>
+                        </button>
+                        <button type="button" onclick="selectGoods('tumbler')" id="btn-goods-tumbler" class="goods-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-xl">🥤</span>
+                            <span class="text-[10px] whitespace-nowrap">텀블러</span>
+                        </button>
+                        <button type="button" onclick="selectGoods('umbrella')" id="btn-goods-umbrella" class="goods-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-xl">🌂</span>
+                            <span class="text-[10px] whitespace-nowrap">우산/양산</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Goods Background & Style Theme -->
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-2">🌅 어디에 두고 사진을 찍을까요? (스타일 배경)</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5" id="style-selector">
+                        <button type="button" onclick="selectStyle('cozy')" id="btn-style-cozy" class="style-btn border border-busanBlue/40 bg-blue-50/40 text-busanBlue font-bold rounded-xl p-2 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-blue-50">
+                            <span class="text-lg">🏡</span>
+                            <span class="text-[9px] sm:text-[10px] whitespace-nowrap">따뜻한 소품샵</span>
+                        </button>
+                        <button type="button" onclick="selectStyle('beach')" id="btn-style-beach" class="style-btn border border-slate-200 bg-white rounded-xl p-2 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-lg">🌊</span>
+                            <span class="text-[9px] sm:text-[10px] whitespace-nowrap">광안리 바닷가</span>
+                        </button>
+                        <button type="button" onclick="selectStyle('bedroom')" id="btn-style-bedroom" class="style-btn border border-slate-200 bg-white rounded-xl p-2 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-lg">🛏️</span>
+                            <span class="text-[9px] sm:text-[10px] whitespace-nowrap">아늑한 내 방</span>
+                        </button>
+                        <button type="button" onclick="selectStyle('studio')" id="btn-style-studio" class="style-btn border border-slate-200 bg-white rounded-xl p-2 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-lg">📸</span>
+                            <span class="text-[9px] sm:text-[10px] whitespace-nowrap">스튜디오 촬영</span>
+                        </button>
+                        <button type="button" onclick="selectStyle('nature')" id="btn-style-nature" class="style-btn border border-slate-200 bg-white rounded-xl p-2 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50">
+                            <span class="text-lg">🌿</span>
+                            <span class="text-[9px] sm:text-[10px] whitespace-nowrap">싱그러운 자연</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Realization Trigger Action Card -->
+            <div class="bg-gradient-to-br from-busanBlue to-blue-700 rounded-2xl p-5 text-white shadow-md">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <h3 class="text-base font-bold heading-font flex items-center justify-center sm:justify-start gap-1">
+                            🎨 실물 크리에이터 제작소 가동 준비 완료!
+                        </h3>
+                        <p class="text-xs text-blue-100 mt-1 opacity-90 leading-relaxed">준비되셨나요? 제작하기 버튼을 누르면 AI가 캐릭터를 멋진 상품으로 제작합니다.</p>
+                    </div>
+                    <button type="button" onclick="startGenerationFlow()" id="btn-generate" class="w-full sm:w-auto bg-busanYellow hover:bg-amber-400 text-slate-900 heading-font px-6 py-3.5 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] flex items-center justify-center gap-2 transition-all text-sm font-black shrink-0">
+                        <i class="fa-solid fa-wand-magic-sparkles text-lg animate-pulse"></i>
+                        <span>AI 상품 제작하기</span>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: Interactive Canvas & Generative Output Area (5 cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- Realtime Product Mockup Generator Output Window -->
+            <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-200/80 flex flex-col justify-between h-full min-h-[500px]">
+                
+                <!-- Display Section Header -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">🎁</span>
+                        <h3 class="text-base font-bold heading-font text-slate-800">상품 완성 매장</h3>
+                    </div>
+                    <span id="status-badge" class="bg-amber-500/10 text-amber-600 border border-amber-300/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                        대기 중
+                    </span>
+                </div>
+
+                <!-- Image Display Sandbox with Loading / Fallback / Success States -->
+                <div class="flex-grow flex items-center justify-center bg-slate-50 rounded-2xl border border-slate-100 relative overflow-hidden p-3 min-h-[340px] shadow-inner">
+                    
+                    <!-- 1. Wait/Intro Slate -->
+                    <div id="state-intro" class="text-center p-6 flex flex-col items-center gap-3">
+                        <div class="w-20 h-20 rounded-full bg-blue-100/60 flex items-center justify-center text-3xl animate-bounce">
+                            🏭
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-700 heading-font">반갑습니다! 꼬마 크리에이터님!</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed max-w-xs">
+                            왼쪽에서 <strong>그린 캐릭터</strong>를 올린 후 원하는 <strong>상품 형태</strong>를 조립하면 멋지게 탄생합니다!
+                        </p>
+                    </div>
+
+                    <!-- 2. Loading Slate -->
+                    <div id="state-loading" class="hidden text-center p-6 flex flex-col items-center justify-center gap-4">
+                        <div class="relative w-24 h-24">
+                            <!-- Spinning circle -->
+                            <div class="absolute inset-0 rounded-full border-4 border-slate-200 border-t-busanOrange animate-spin"></div>
+                            <!-- Icon inside -->
+                            <div class="absolute inset-0 flex items-center justify-center text-3xl">
+                                🧙‍♂️
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-800 heading-font" id="loading-title">AI 디자이너가 분석하는 중...</h4>
+                            <p class="text-[11px] text-slate-400 mt-1 max-w-[200px] mx-auto leading-relaxed" id="loading-subtitle">
+                                드로잉 형태를 본뜬 가상 3D 모델을 기획하는 중입니다. 잠시만 기다려 주세요!
+                            </p>
+                        </div>
+                        <!-- Micro Loading Steps Progress Bar -->
+                        <div class="w-48 bg-slate-200 rounded-full h-1.5 overflow-hidden mt-2">
+                            <div id="loading-progress" class="bg-gradient-to-r from-busanOrange to-busanYellow h-1.5 rounded-full transition-all duration-300" style="width: 10%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Success / Beautiful Render Image Canvas -->
+                    <div id="state-success" class="hidden w-full h-full flex flex-col items-center justify-center relative">
+                        <img id="result-img" class="max-w-full max-h-80 object-contain rounded-xl shadow-lg border border-slate-200/50 bg-white" alt="AI 완성된 상품">
+                        
+                        <!-- Floating Stamp Info -->
+                        <div class="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[9px] flex items-center gap-1.5">
+                            <span id="badge-goods">🏅 고급 금속 뱃지</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Actions Controls for finalized image output -->
+                <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2">
+                    <div class="grid grid-cols-1" id="result-actions" style="pointer-events: none; opacity: 0.5;">
+                        <button type="button" onclick="downloadResult()" class="bg-busanBlue hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md">
+                            <i class="fa-solid fa-download text-sm"></i>
+                            <span>태블릿에 저장하기 (갤러리에 저장)</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 text-center py-6 border-t border-slate-700 text-xs">
+        <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-center sm:text-left">
+                <p class="font-bold text-slate-300">⚓ 초등학교 4학년 로컬 에듀케이션 - 부산의 국가유산 창의적 융합 디자인</p>
+                <p class="text-[10px] mt-1 text-slate-500">본 도구는 Gemini 2.5 Image AI를 활용해 학생들의 드로잉을 기반으로 맞춤형 교육 디자인을 실현합니다.</p>
+            </div>
+            <p class="text-[10px] text-slate-500">© 2026 국가유산 캐릭터 상품 제작소. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <!-- Script Logic and Interaction Pipeline -->
+    <script>
+        // State variables
+        let selectedGoods = 'badge';
+        let selectedStyle = 'cozy';
+        let uploadedImageBase64 = null;
+        let generatedImageUrl = null;
+        
+        // Classic cute Yangjeong-dong Crape Myrtle Natural Monument default character drawing (SVG)
+        const DEFAULT_CHARACTER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="150" height="150">
+            <rect width="100" height="100" fill="#FCF8F2" rx="15"/>
+            <defs>
+                <linearGradient id="flowerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#FF8A95"/>
+                    <stop offset="100%" stop-color="#FF5C6E"/>
+                </linearGradient>
+            </defs>
+            <g stroke="#5C2A29" stroke-width="3" stroke-linejoin="round" fill="url(#flowerGrad)">
+                <!-- 6 Petals radial arrangement representing the Crape Myrtle flower -->
+                <circle cx="50" cy="31" r="16" />
+                <circle cx="68" cy="42" r="16" />
+                <circle cx="68" cy="62" r="16" />
+                <circle cx="50" cy="73" r="16" />
+                <circle cx="32" cy="62" r="16" />
+                <circle cx="32" cy="42" r="16" />
+                <!-- Center mask to fill internal spaces -->
+                <circle cx="50" cy="52" r="22" stroke="none" />
+            </g>
+            <!-- Face features -->
+            <!-- Rosy cheeks -->
+            <circle cx="37" cy="54" r="5" fill="#FFA194" opacity="0.9"/>
+            <circle cx="63" cy="54" r="5" fill="#FFA194" opacity="0.9"/>
+            <!-- Eyes -->
+            <circle cx="44" cy="48" r="2.5" fill="#5C2A29"/>
+            <circle cx="56" cy="48" r="2.5" fill="#5C2A29"/>
+            <!-- Cute mouth -->
+            <path d="M 48 51 Q 50 53 52 51" fill="none" stroke="#5C2A29" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Creases in petals -->
+            <path d="M 50 18 L 50 21" fill="none" stroke="#5C2A29" stroke-width="2.2" stroke-linecap="round"/>
+            <text x="50" y="93" font-family="sans-serif" font-size="8" font-weight="bold" fill="#5C2A29" text-anchor="middle">양정동 배롱나무</text>
+        </svg>`;
+
+        // Goods Type Selection Handler
+        function selectGoods(id) {
+            selectedGoods = id;
+            document.querySelectorAll('.goods-btn').forEach(btn => {
+                btn.className = "goods-btn border border-slate-200 bg-white rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50";
+            });
+
+            const activeBtn = document.getElementById(`btn-goods-${id}`);
+            if (activeBtn) {
+                activeBtn.className = "goods-btn border border-busanBlue/40 bg-blue-50/40 text-busanBlue font-bold rounded-xl p-2.5 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-blue-50";
+            }
+        }
+
+        // Background Style Selection Handler
+        function selectStyle(id) {
+            selectedStyle = id;
+            document.querySelectorAll('.style-btn').forEach(btn => {
+                btn.className = "style-btn border border-slate-200 bg-white rounded-xl p-2 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-slate-50";
+            });
+
+            const activeBtn = document.getElementById(`btn-style-${id}`);
+            if (activeBtn) {
+                activeBtn.className = "style-btn border border-busanBlue/40 bg-blue-50/40 text-busanBlue font-bold rounded-xl p-2 text-center transition-all flex flex-col items-center justify-center gap-1 hover:bg-blue-50";
+            }
+        }
+
+        // Handle File Drag/Selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            processImageFile(file);
+        }
+
+        // Background Drag Over effects
+        const dropZone = document.getElementById('drop-zone');
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-busanBlue', 'bg-blue-50/30');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-busanBlue', 'bg-blue-50/30');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            if (file) {
+                processImageFile(file);
+            }
+        }, false);
+
+        // Process Image to Base64
+        function processImageFile(file) {
+            if (!file.type.startsWith('image/')) {
+                createBanner('⚠️ 이미지 파일만 업로드할 수 있어요!', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            
+            // Set statuses
+            document.getElementById('upload-status-text').textContent = "스캔 완료 💖";
+            document.getElementById('upload-status-text').className = "text-[10px] text-emerald-600 font-bold mt-2";
+            
+            reader.onload = (e) => {
+                uploadedImageBase64 = e.target.result;
+                const previewImg = document.getElementById('upload-preview');
+                previewImg.src = uploadedImageBase64;
+                
+                // Show delete button
+                document.getElementById('btn-remove-image').classList.remove('hidden');
+                
+                // Animate box
+                document.getElementById('upload-icon-container').className = "w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500 shadow-sm";
+                document.getElementById('upload-icon-container').innerHTML = `<i class="fa-solid fa-circle-check text-xl"></i>`;
+                
+                document.getElementById('upload-text-container').innerHTML = `
+                    <p class="text-xs font-bold text-slate-700">성공적으로 준비되었어요!</p>
+                    <p class="text-[10px] text-emerald-600 mt-1">이 캐릭터로 실사화를 만듭니다.</p>
+                `;
+            };
+        }
+
+        // Clear Uploaded Character image
+        function clearUploadedImage() {
+            uploadedImageBase64 = null;
+            document.getElementById('upload-preview').src = 'https://placehold.co/150x150/f1f5f9/94a3b8?text=스케치';
+            document.getElementById('btn-remove-image').classList.add('hidden');
+            
+            document.getElementById('upload-status-text').textContent = "대기 중";
+            document.getElementById('upload-status-text').className = "text-[10px] text-slate-400 mt-2 font-medium";
+            
+            document.getElementById('upload-icon-container').className = "w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400";
+            document.getElementById('upload-icon-container').innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-xl text-busanBlue"></i>`;
+            
+            document.getElementById('upload-text-container').innerHTML = `
+                <p class="text-xs font-bold text-slate-700">그림 파일을 드래그하거나 클릭하세요</p>
+                <p class="text-[10px] text-slate-400 mt-1">배경이 투명하지 않은 스케치도 AI가 예쁘게 따서 합성해 줘요!</p>
+            `;
+            
+            document.getElementById('file-upload').value = '';
+        }
+
+        // Auto-fill template drawing if user has no drawing
+        function useDefaultCharacter() {
+            const blob = new Blob([DEFAULT_CHARACTER_SVG], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(blob);
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = function() {
+                uploadedImageBase64 = reader.result;
+                const previewImg = document.getElementById('upload-preview');
+                previewImg.src = uploadedImageBase64;
+                
+                document.getElementById('btn-remove-image').classList.remove('hidden');
+                document.getElementById('upload-status-text').textContent = "배롱나무 캐릭터 로드 완료 ✨";
+                document.getElementById('upload-status-text').className = "text-[10px] text-busanBlue font-bold mt-2";
+                
+                document.getElementById('upload-icon-container').className = "w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-busanBlue shadow-sm";
+                document.getElementById('upload-icon-container').innerHTML = `<i class="fa-solid fa-star text-xl animate-pulse"></i>`;
+                
+                document.getElementById('upload-text-container').innerHTML = `
+                    <p class="text-xs font-bold text-slate-700">배롱나무 캐릭터 충전!</p>
+                    <p class="text-[10px] text-blue-500 mt-1">곧 멋진 상품으로 실사화됩니다.</p>
+                `;
+                
+                createBanner('🌸 천연기념물 양정동 배롱나무 캐릭터가 등록되었습니다.', 'success');
+            }
+        }
+
+        // UI Notifications System
+        function createBanner(message, type = 'info') {
+            const colors = {
+                success: 'bg-emerald-600 text-white',
+                error: 'bg-red-600 text-white',
+                info: 'bg-slate-800 text-white'
+            };
+
+            const banner = document.createElement('div');
+            banner.className = `fixed bottom-6 right-6 ${colors[type]} py-3 px-5 rounded-2xl shadow-xl text-xs font-semibold z-50 flex items-center gap-2 transition-all duration-300 transform translate-y-10 opacity-0`;
+            banner.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="hover:opacity-70"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            document.body.appendChild(banner);
+
+            setTimeout(() => {
+                banner.classList.remove('translate-y-10', 'opacity-0');
+            }, 50);
+
+            setTimeout(() => {
+                banner.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => banner.remove(), 300);
+            }, 4000);
+        }
+
+        // Start Generation Flow & Display Loading Sequences
+        async function startGenerationFlow() {
+            if (!uploadedImageBase64) {
+                createBanner('⚠️ 상품을 만들려면 먼저 캐릭터 그림(1단계)을 등록해야 해요!', 'error');
+                return;
+            }
+
+            // Enter loading state
+            toggleSandboxState('loading');
+            
+            const progress = document.getElementById('loading-progress');
+            const title = document.getElementById('loading-title');
+            const subtitle = document.getElementById('loading-subtitle');
+            
+            // Educational and Fun loading sequence messages
+            const loadingSteps = [
+                { percent: 15, title: '🎨 고정밀 윤곽선 추출 기술 가동...', desc: '스케치의 선 and 색을 똑똑하게 분리해 프리미엄 인쇄 백터 도면으로 변환합니다.' },
+                { percent: 40, title: '🏛️ 부산 테마 조명 동기화 중...', desc: '선택하신 상품의 재질과 주변 소품 조명을 맞춰줍니다.' },
+                { percent: 65, title: '🛠️ 3D 가상 실물 공장 가동 중...', desc: '재질별 맞춤 공정(에나멜 입체 도금, 아크릴 물리 굴절, 도자기 전사)을 적용합니다.' },
+                { percent: 85, title: '📸 고해상도 스튜디오 렌더링 중...', desc: '카메라 초점과 빛 반사를 적용해 소품숍 급의 고화질 상품 사진을 제작하고 있습니다.' }
+            ];
+
+            let stepIdx = 0;
+            const interval = setInterval(() => {
+                if (stepIdx < loadingSteps.length) {
+                    const step = loadingSteps[stepIdx];
+                    progress.style.width = `${step.percent}%`;
+                    title.textContent = step.percent + "% " + step.title;
+                    subtitle.textContent = step.desc;
+                    stepIdx++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1000);
+
+            try {
+                // Try real Multi-turn/Image-to-Image Gemini API Generation first
+                generatedImageUrl = await callGeminiImageToImageAPI();
+                
+                // Show output
+                clearInterval(interval);
+                progress.style.width = `100%`;
+                
+                const goodsKorean = {
+                    badge: '🏅 프리미엄 금속 뱃지',
+                    keyring: '🧸 가방에 매달린 아크릴 키링',
+                    griptok: '📱 폰부착 3D 스마트 톡',
+                    mug: '☕ 도자기 머그컵',
+                    ecobag: '👜 자수 에코백',
+                    notebook: '📒 친환경 줄노트',
+                    moodlight: '💡 감성 무드등',
+                    tumbler: '🥤 스테인리스 텀블러',
+                    umbrella: '🌂 친환경 우산/양산'
+                };
+
+                document.getElementById('badge-goods').textContent = goodsKorean[selectedGoods];
+                
+                document.getElementById('result-img').src = generatedImageUrl;
+                toggleSandboxState('success');
+                
+                // Trigger celebratory confetti!
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+                
+                createBanner('🎉 와아! 멋진 캐릭터 상품이 완성되었어요!', 'success');
+
+            } catch (err) {
+                clearInterval(interval);
+                console.error(err);
+                
+                // Fallback option automatically kicks in for frictionless classroom environments
+                title.textContent = '🎨 하이엔드 로컬 합성 엔진 가동...';
+                subtitle.textContent = '실제 판매되는 프리미엄 고품질 상품 질감 필터를 씌워 예쁘게 제작하는 중입니다!';
+                await delay(2000);
+                
+                generatedImageUrl = await generateLocalSimulatedMockImage();
+                
+                const goodsKorean = {
+                    badge: '🏅 프리미엄 금속 뱃지',
+                    keyring: '🧸 가방에 매달린 아크릴 키링',
+                    griptok: '📱 폰부착 3D 스마트 톡',
+                    mug: '☕ 도자기 머그컵',
+                    ecobag: '👜 자수 에코백',
+                    notebook: '📒 친환경 줄노트',
+                    moodlight: '💡 감성 무드등',
+                    tumbler: '🥤 스테인리스 텀블러',
+                    umbrella: '🌂 친환경 우산/양산'
+                };
+
+                document.getElementById('badge-goods').textContent = goodsKorean[selectedGoods];
+                
+                document.getElementById('result-img').src = generatedImageUrl;
+                toggleSandboxState('success');
+                
+                confetti({
+                    particleCount: 100,
+                    spread: 60,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        // Helper Delay
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Switch Right column Preview Window states
+        function toggleSandboxState(state) {
+            const intro = document.getElementById('state-intro');
+            const loading = document.getElementById('state-loading');
+            const success = document.getElementById('state-success');
+            const actions = document.getElementById('result-actions');
+            const badge = document.getElementById('status-badge');
+
+            intro.classList.add('hidden');
+            loading.classList.add('hidden');
+            success.classList.add('hidden');
+
+            if (state === 'intro') {
+                intro.classList.remove('hidden');
+                actions.style.pointerEvents = 'none';
+                actions.style.opacity = '0.5';
+                badge.textContent = '대기 중';
+                badge.className = "bg-amber-500/10 text-amber-600 border border-amber-300/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full";
+            } else if (state === 'loading') {
+                loading.classList.remove('hidden');
+                actions.style.pointerEvents = 'none';
+                actions.style.opacity = '0.5';
+                badge.textContent = '생성 중 🪄';
+                badge.className = "bg-busanBlue/10 text-busanBlue border border-busanBlue/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full animate-pulse";
+            } else if (state === 'success') {
+                success.classList.remove('hidden');
+                actions.style.pointerEvents = 'auto';
+                actions.style.opacity = '1';
+                badge.textContent = '제작 완료 ⭐';
+                badge.className = "bg-emerald-500/10 text-emerald-600 border border-emerald-300/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full";
+            }
+        }
+
+        // CALL REAL GEMINI API FOR IMAGE GENERATION / EDITING
+        async function callGeminiImageToImageAPI() {
+            // Environment automatically provides workspace key
+            const apiKey = ""; 
+            
+            const goodsPrompt = {
+                badge: 'A high-end, close-up photograph of a metallic enamel lapel pin badge attached to a stylish denim jacket collar. The badge has a brilliant, slightly thick raised gold metal border defining the character outline, filled with vivid glossy colored enamel. It reflects warm sunlight realistically and shows a tiny physical pin clutch depression behind it.',
+                keyring: 'A professional marketing snapshot of a glossy clear acrylic keychain hanging naturally from a metal zipper loop of a modern fabric backpack. The character design is cleanly embedded inside a thick, rounded acrylic plate with high gloss polished edges, catching realistic specular light. A detailed, shiny metallic D-ring chain is shown attached.',
+                griptok: 'A high-end product photograph of a modern sleek smartphone (such as an iPhone or Galaxy with realistic triple camera lenses on a matte frosted glass back). A custom round phone grip (smart tok/griptok) is firmly attached to the back of the phone. The student character drawing is beautifully printed under a thick, premium crystal-clear 3D resin epoxy dome layer on the phone grip, with stunning glossy specular light reflections and realistic shadow depths on the phone cover surface.',
+                mug: 'A premium product photo of a white ceramic mug. The character drawing is beautifully printed onto the curved side of the mug as a seamless high-temperature ceramic glaze transfer, catching soft organic lighting.',
+                ecobag: 'A high-quality product photo of an organic cotton canvas bag. The character drawing is beautifully printed with soft eco-friendly screen printing fabric ink, naturally sinking into the linen weave texture without artificial boundaries.',
+                notebook: 'A beautiful stationery layout photo of a thick kraft paper notebook. The character drawing is elegantly hot-stamped onto the cover with a professional matte metallic dark-blue or black screenprint look.',
+                moodlight: 'A premium product photograph of a modern glowing acrylic LED night light on a natural wood base. The character drawing is beautifully laser-etched directly into the transparent acrylic sheet, glowing with warm glowing golden lines.',
+                tumbler: 'A professional marketing photo of a modern matte navy thermal travel tumbler. The character drawing is beautifully integrated on the front as a sleek metallic gold foil silk screenprint design.',
+                umbrella: 'A professional studio product shot of a premium compact travel umbrella. The character drawing is printed seamlessly on one of the fabric panels in high resolution, looking natural and perfectly integrated.'
+            };
+
+            const stylePrompt = {
+                cozy: 'placed carefully on a rustic wooden desk inside a warm, cozy sunlit boutique souvenir shop in Busan, soft ambient lighting, pastel ornaments in background',
+                beach: 'set on Gwangalli beach white sand, beautiful calm blue sea of Busan in the background, warm bright sunlight, summer seaside vibe',
+                bedroom: 'elegantly positioned on a clean wooden bedside nightstand in an aesthetic cozy bedroom, with warm glowing fairy lights and a soft desk lamp illuminating the scene in the blurry background, peaceful calm atmosphere',
+                studio: 'placed in a professional product photography studio, clean plain light grey background, sharp focus, professional dynamic three-point studio lighting',
+                nature: 'surrounded by lush green leaves, pine needles, natural mossy wood, in a fresh mountain forest of Geumjeongsan, natural direct sunlight casting soft leaf shadows'
+            };
+
+            // Enhanced Integration prompt logic
+            const prompt = `Create a highly realistic commercial product photograph of the souvenir. 
+            Product type: ${goodsPrompt[selectedGoods]}
+            INTEGRATION RULE: Do NOT just copy-paste the image as a flat rectangular stamp. Instead, extract the outline and key elements of the uploaded character design and beautifully integrate/emboss/print it onto the surface of the physical product, adjusting to its curved surface, texture, and light reflection.
+            Scene setting: ${stylePrompt[selectedStyle]}
+            Ensure the physical product textures are extremely detailed and tangible (acrylic sheen, cotton linen threads, smooth porcelain glaze, natural cardstock grain). Crisp 8k photo focus, realistic shadow depth, high professional marketing asset quality.`;
+
+            // Clean base64 image data (remove prefixes)
+            const base64Clean = uploadedImageBase64.split(',')[1];
+            
+            // API Endpoint URL using the official fallback model gemini-2.5-flash-image-preview
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+
+            // Build structural payload for image-to-image modal edit
+            const payload = {
+                contents: [{
+                    role: 'user',
+                    parts: [
+                        { text: prompt },
+                        {
+                            inlineData: {
+                                mimeType: 'image/png',
+                                data: base64Clean
+                            }
+                        }
+                    ]
+                }],
+                generationConfig: {
+                    responseModalities: ['IMAGE'],
+                    imageConfig: {
+                        aspectRatio: "1:1"
+                    }
+                }
+            };
+
+            // Call API with backoff mechanism
+            const response = await fetchWithBackoff(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API returned error status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const part = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+            
+            if (part && part.inlineData && part.inlineData.data) {
+                return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+            } else {
+                throw new Error("Could not extract image data from API response");
+            }
+        }
+
+        // Exponential Backoff API Wrapper
+        async function fetchWithBackoff(url, options, retries = 3, delayMs = 1500) {
+            try {
+                const response = await fetch(url, options);
+                if (response.status === 429 && retries > 0) {
+                    await delay(delayMs);
+                    return fetchWithBackoff(url, options, retries - 1, delayMs * 2);
+                }
+                return response;
+            } catch (err) {
+                if (retries > 0) {
+                    await delay(delayMs);
+                    return fetchWithBackoff(url, options, retries - 1, delayMs * 2);
+                }
+                throw err;
+            }
+        }
+
+        // Smart pixel-level alpha masking & color transformation filter for simulated mockups
+        // This makes sure white backgrounds are removed AND styles are mapped gracefully (e.g. converting lines to gold foil)
+        function drawProcessedImage(ctx, img, destX, destY, destW, destH, mode) {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = destW;
+            tempCanvas.height = destH;
+            const tCtx = tempCanvas.getContext('2d');
+            tCtx.drawImage(img, 0, 0, destW, destH);
+            
+            try {
+                const imgData = tCtx.getImageData(0, 0, destW, destH);
+                const data = imgData.data;
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i+1];
+                    const b = data[i+2];
+                    const a = data[i+3];
+                    
+                    // Simple whiteness formula
+                    const brightness = (r + g + b) / 3;
+                    
+                    // If pixel is white or very bright (like typical drawing background paper), make it transparent
+                    if (brightness > 215) {
+                        data[i+3] = 0;
+                    } else if (a > 30) {
+                        // Blend and stylize drawing pixels
+                        if (mode === 'gold') {
+                            // Turn student drawing lines into premium metallic gold foil
+                            data[i] = 233;   // Gold R
+                            data[i+1] = 177; // G
+                            data[i+2] = 73;  // B
+                            data[i+3] = 255; 
+                        } else if (mode === 'dark-navy') {
+                            // Turn lines into elegant dark slate navy print
+                            data[i] = 15;    // Navy R
+                            data[i+1] = 23;  // G
+                            data[i+2] = 42;  // B
+                            data[i+3] = 255;
+                        }
+                    }
+                }
+                tCtx.putImageData(imgData, 0, 0);
+            } catch (e) {
+                console.warn("Local image processing restricted (CORS/Fallback). Drawing original.", e);
+            }
+            
+            ctx.save();
+            if (mode === 'gold') {
+                ctx.shadowColor = 'rgba(233, 177, 73, 0.4)';
+                ctx.shadowBlur = 10;
+            }
+            ctx.drawImage(tempCanvas, destX, destY);
+            ctx.restore();
+        }
+
+        // Fallback Generator: Synthesizes high-end integrated design mockup via Canvas
+        async function generateLocalSimulatedMockImage() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // Draw Background Gradients depending on style
+            const styleColors = {
+                cozy: ['#FFF3E0', '#FFE0B2'],
+                beach: ['#E0F7FA', '#B2EBF2'],
+                bedroom: ['#F5E6E8', '#DEC0F1'], // Soft warm purple/peach evening sunset room vibes
+                studio: ['#ECEFF1', '#CFD8DC'],
+                nature: ['#E8F5E9', '#C8E6C9']
+            };
+            const currentBg = styleColors[selectedStyle];
+            const grad = ctx.createRadialGradient(300, 300, 50, 300, 300, 400);
+            grad.addColorStop(0, currentBg[0]);
+            grad.addColorStop(1, currentBg[1]);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 600, 600);
+
+            // Special bedroom background effect: glowing fairy lights
+            if (selectedStyle === 'bedroom') {
+                ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+                for (let i = 0; i < 6; i++) {
+                    ctx.beginPath();
+                    ctx.arc(80 + i * 90, 70 + (i % 2) * 30, 25, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                // Fairy Light string link
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(0, 70);
+                ctx.bezierCurveTo(150, 130, 300, 50, 600, 90);
+                ctx.stroke();
+            }
+
+            // Draw soft ocean wave decor for 부산 vibe
+            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = '#0057B7';
+            ctx.font = 'bold 90px Arial';
+            ctx.fillText('🌊', 60, 210);
+            ctx.fillText('⚓', 440, 470);
+            ctx.globalAlpha = 1.0;
+
+            // Store details of loaded student drawing
+            let img = new Image();
+            img.src = uploadedImageBase64;
+            await new Promise((resolve) => { img.onload = resolve; });
+
+            // Render Product Base shapes with high-end realism
+            if (selectedGoods === 'badge') {
+                // Background: Denim jacket collar cloth fabric base
+                ctx.fillStyle = '#2b4c7e'; // Denim Blue
+                roundRect(ctx, 120, 150, 360, 330, 24, true, false);
+
+                // Denim Twill lines
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+                ctx.lineWidth = 2;
+                for (let i = 120; i < 480; i += 6) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 150);
+                    ctx.lineTo(i - 50, 480);
+                    ctx.stroke();
+                }
+
+                // Jacket collar stitched border line
+                ctx.strokeStyle = '#d97706'; // Orange stitching thread
+                ctx.lineWidth = 3.5;
+                ctx.setLineDash([8, 8]);
+                ctx.beginPath();
+                ctx.moveTo(140, 150);
+                ctx.lineTo(140, 480);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // 3D Shadow underneath the metal badge pinned on denim
+                ctx.fillStyle = 'rgba(0,0,0,0.45)';
+                ctx.beginPath();
+                ctx.ellipse(305, 315, 105, 105, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Golden Metal Badge solid backing frame
+                ctx.fillStyle = '#b45309'; // Bronze-gold base
+                ctx.beginPath();
+                ctx.arc(300, 300, 104, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#f59e0b'; // Shiny gold surface border
+                ctx.beginPath();
+                ctx.arc(300, 300, 98, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Enamel inner white background base plate
+                ctx.fillStyle = '#f8fafc';
+                ctx.beginPath();
+                ctx.arc(300, 300, 86, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw student drawing cleanly with gold lines inside enamel base
+                drawProcessedImage(ctx, img, 215, 215, 170, 170, 'gold');
+
+                // Enamel 3D glossy dome specular shine overlay
+                const enamelGrad = ctx.createLinearGradient(200, 200, 400, 400);
+                enamelGrad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+                enamelGrad.addColorStop(0.3, 'rgba(255, 255, 255, 0.05)');
+                enamelGrad.addColorStop(0.7, 'rgba(0, 0, 0, 0.02)');
+                enamelGrad.addColorStop(1, 'rgba(0, 0, 0, 0.25)');
+                ctx.fillStyle = enamelGrad;
+                ctx.beginPath();
+                ctx.arc(300, 300, 98, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Metal Rim Highlights
+                ctx.strokeStyle = '#fef08a'; // pure gold shine
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.arc(300, 300, 98, Math.PI * 1.1, Math.PI * 1.6);
+                ctx.stroke();
+
+            } else if (selectedGoods === 'keyring') {
+                // Background: A modern soft grey canvas backpack texture
+                ctx.fillStyle = '#64748b'; // Slate grey bag fabric
+                roundRect(ctx, 120, 100, 360, 420, 30, true, false);
+
+                // Heavy metal loop/zipper ring attached to the bag
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 14;
+                ctx.beginPath();
+                ctx.arc(300, 140, 28, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.strokeStyle = '#94a3b8'; // Metallic sheen on backpack zipper ring
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.arc(300, 140, 28, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Keyring metal chain connecting downward
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 9;
+                ctx.beginPath();
+                ctx.moveTo(300, 168);
+                ctx.lineTo(300, 235);
+                ctx.stroke();
+
+                ctx.strokeStyle = '#cbd5e1'; // chain shine
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(300, 168);
+                ctx.lineTo(300, 235);
+                ctx.stroke();
+
+                // Cast shadow for acrylic body hanging over the bag
+                ctx.fillStyle = 'rgba(0,0,0,0.35)';
+                roundRect(ctx, 205, 245, 200, 200, 45, true, false);
+
+                // High glass acrylic backplate border hanging
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.lineWidth = 8;
+                roundRect(ctx, 195, 235, 210, 210, 45, true, true);
+
+                // Acrylic transparent body core
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+                roundRect(ctx, 205, 245, 190, 190, 35, true, false);
+
+                // Draw clean isolated character drawing inside acrylic
+                drawProcessedImage(ctx, img, 215, 255, 170, 170, 'normal');
+
+                // Glossy diagonal acrylic glare lines (On TOP of the image)
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(220, 290);
+                ctx.lineTo(260, 250);
+                ctx.moveTo(230, 410);
+                ctx.lineTo(370, 270);
+                ctx.stroke();
+
+            } else if (selectedGoods === 'griptok') {
+                // Background: Sleek matte navy/indigo premium smartphone back plate
+                ctx.fillStyle = '#0f172a'; // Deep Navy phone casing
+                roundRect(ctx, 210, 110, 180, 360, 24, true, false);
+
+                // Phone Camera Module (Triple lens array for realistic phone mockup)
+                ctx.fillStyle = '#1e293b'; // Camera lens bump plate
+                roundRect(ctx, 222, 122, 54, 54, 12, true, false);
+                
+                // Lenses
+                ctx.fillStyle = '#020617';
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(236, 136, 8, 0, Math.PI*2);
+                ctx.arc(262, 136, 8, 0, Math.PI*2);
+                ctx.arc(249, 159, 8, 0, Math.PI*2);
+                ctx.fill();
+                ctx.stroke();
+                
+                // Flash LED & Sensor dots
+                ctx.fillStyle = '#fef08a';
+                ctx.beginPath(); ctx.arc(262, 159, 3, 0, Math.PI*2); ctx.fill();
+
+                // Sleek metallic specular shine reflecting across the phone glass back
+                const phoneGlass = ctx.createLinearGradient(210, 110, 390, 470);
+                phoneGlass.addColorStop(0, 'rgba(255,255,255,0.08)');
+                phoneGlass.addColorStop(0.5, 'rgba(255,255,255,0)');
+                phoneGlass.addColorStop(1, 'rgba(0,0,0,0.3)');
+                ctx.fillStyle = phoneGlass;
+                roundRect(ctx, 210, 110, 180, 360, 24, true, false);
+
+                // 3D Shadow cast by the attached Smart Tok body onto the phone
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+                ctx.beginPath();
+                ctx.arc(305, 305, 62, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Smart Tok black plastic accordion base rim
+                ctx.fillStyle = '#1e293b';
+                ctx.beginPath();
+                ctx.arc(300, 300, 60, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Smart Tok premium outer ring bezel (Golden)
+                ctx.strokeStyle = '#d97706';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(300, 300, 56, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Smart Tok white printable faceplate
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(300, 300, 52, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw original drawing in clean transparent format inside Griptok
+                drawProcessedImage(ctx, img, 245, 245, 110, 110, 'normal');
+
+                // Glossy thick 3D liquid resin dome lens reflection over the top of Smart Tok
+                const resinGrad = ctx.createRadialGradient(280, 280, 5, 300, 300, 52);
+                resinGrad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+                resinGrad.addColorStop(0.3, 'rgba(255, 255, 255, 0.1)');
+                resinGrad.addColorStop(0.85, 'rgba(0, 0, 0, 0.05)');
+                resinGrad.addColorStop(1, 'rgba(0, 0, 0, 0.25)');
+                
+                ctx.fillStyle = resinGrad;
+                ctx.beginPath();
+                ctx.arc(300, 300, 52, 0, Math.PI * 2);
+                ctx.fill();
+
+            } else if (selectedGoods === 'mug') {
+                // Mug Handle
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 22;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.arc(410, 300, 45, -Math.PI / 2, Math.PI / 2);
+                ctx.stroke();
+
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 14;
+                ctx.beginPath();
+                ctx.arc(410, 300, 45, -Math.PI / 2, Math.PI / 2);
+                ctx.stroke();
+
+                // White Mug Ceramic Solid Body
+                ctx.fillStyle = '#ffffff';
+                roundRect(ctx, 190, 190, 190, 210, 22, true, false);
+
+                // Curved Rim Top Shade
+                ctx.fillStyle = '#e2e8f0';
+                ctx.beginPath();
+                ctx.ellipse(285, 190, 95, 14, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw original drawing cleanly with alpha filter
+                drawProcessedImage(ctx, img, 210, 220, 150, 150, 'normal');
+
+                // Shiny vertical glass highlight sheen over the drawing
+                const mugGrad = ctx.createLinearGradient(190, 0, 380, 0);
+                mugGrad.addColorStop(0, 'rgba(0,0,0,0.04)');
+                mugGrad.addColorStop(0.2, 'rgba(255,255,255,0.4)');
+                mugGrad.addColorStop(0.35, 'rgba(255,255,255,0)');
+                mugGrad.addColorStop(0.8, 'rgba(0,0,0,0.03)');
+                mugGrad.addColorStop(1, 'rgba(0,0,0,0.15)');
+                
+                ctx.fillStyle = mugGrad;
+                roundRect(ctx, 190, 190, 190, 210, 22, true, false);
+
+            } else if (selectedGoods === 'ecobag') {
+                // Organic canvas bag background fabric texture
+                ctx.fillStyle = '#f6f4ec';
+                roundRect(ctx, 170, 190, 260, 260, 12, true, false);
+
+                // Subtle fabric pattern (fabric texture simulator)
+                ctx.strokeStyle = 'rgba(0,0,0,0.03)';
+                ctx.lineWidth = 1;
+                for (let x = 180; x < 420; x += 4) {
+                    ctx.beginPath(); ctx.moveTo(x, 190); ctx.lineTo(x, 450); ctx.stroke();
+                }
+
+                // Stitched margins
+                ctx.strokeStyle = '#c4b5a0';
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([6, 6]);
+                roundRect(ctx, 182, 202, 236, 236, 6, false, true);
+                ctx.setLineDash([]);
+
+                // Straps
+                ctx.strokeStyle = '#c4b5a0';
+                ctx.lineWidth = 16;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(230, 190);
+                ctx.quadraticCurveTo(230, 80, 265, 80);
+                ctx.moveTo(370, 190);
+                ctx.quadraticCurveTo(370, 80, 335, 80);
+                ctx.stroke();
+
+                // Draw design into fabric with dark-navy ink look to blend perfectly
+                drawProcessedImage(ctx, img, 210, 230, 180, 180, 'dark-navy');
+
+            } else if (selectedGoods === 'notebook') {
+                // Soft craft paper base cover
+                ctx.fillStyle = '#d7ba8d';
+                roundRect(ctx, 170, 160, 260, 300, 12, true, false);
+
+                // Book spine line shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.08)';
+                ctx.fillRect(170, 160, 18, 300);
+
+                // Dark Navy printing ink style stamp integration
+                drawProcessedImage(ctx, img, 210, 210, 180, 180, 'dark-navy');
+
+            } else if (selectedGoods === 'moodlight') {
+                // Wooden LED Base
+                ctx.fillStyle = '#8B5A2B';
+                roundRect(ctx, 190, 395, 220, 42, 10, true, false);
+
+                // Neon Golden Warm Light background glow
+                const lampGlow = ctx.createRadialGradient(300, 290, 30, 300, 290, 190);
+                lampGlow.addColorStop(0, 'rgba(253, 230, 138, 0.6)');
+                lampGlow.addColorStop(1, 'rgba(253, 230, 138, 0)');
+                ctx.fillStyle = lampGlow;
+                ctx.beginPath();
+                ctx.arc(300, 290, 190, 0, Math.PI * 2);
+                ctx.fill();
+
+                // High glass acrylic sheet plate
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+                ctx.lineWidth = 4;
+                roundRect(ctx, 205, 180, 190, 210, 20, true, true);
+
+                // Golden LED glowing line engraving for the drawing!
+                drawProcessedImage(ctx, img, 215, 195, 170, 170, 'gold');
+
+                // Diagonal glass plate specular shine
+                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.moveTo(220, 220);
+                ctx.lineTo(250, 190);
+                ctx.stroke();
+
+            } else if (selectedGoods === 'tumbler') {
+                // Matte dark navy metallic body shape
+                ctx.fillStyle = '#1e293b';
+                roundRect(ctx, 210, 170, 180, 255, 16, true, false);
+
+                // Metallic silver lid highlights
+                ctx.fillStyle = '#94a3b8';
+                roundRect(ctx, 202, 158, 196, 16, 5, true, false);
+
+                // Shiny metallic gold foil character print on front
+                drawProcessedImage(ctx, img, 225, 210, 150, 150, 'gold');
+
+                // Specular cylinder 3D lighting shadow layer
+                const tubGrad = ctx.createLinearGradient(210, 0, 390, 0);
+                tubGrad.addColorStop(0, 'rgba(0,0,0,0.15)');
+                tubGrad.addColorStop(0.25, 'rgba(255,255,255,0.12)');
+                tubGrad.addColorStop(0.5, 'rgba(255,255,255,0)');
+                tubGrad.addColorStop(0.85, 'rgba(0,0,0,0.05)');
+                tubGrad.addColorStop(1, 'rgba(0,0,0,0.3)');
+                
+                ctx.fillStyle = tubGrad;
+                roundRect(ctx, 210, 170, 180, 255, 16, true, false);
+
+            } else if (selectedGoods === 'umbrella') {
+                // Umbrella metal core shaft
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(300, 340);
+                ctx.lineTo(300, 440);
+                ctx.stroke();
+
+                // Curved wood J-hook handle
+                ctx.strokeStyle = '#7c2d12';
+                ctx.lineWidth = 9;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.arc(286, 440, 14, 0, Math.PI);
+                ctx.stroke();
+
+                // Open canopy umbrella dome (dark teal fabric)
+                ctx.fillStyle = '#0f3a5f';
+                ctx.beginPath();
+                ctx.arc(300, 245, 115, 0, Math.PI, true);
+                ctx.fill();
+
+                // Flat drawing integrated into one of the panels cleanly
+                drawProcessedImage(ctx, img, 240, 180, 120, 120, 'normal');
+
+                // Curved panel division lines (umbrella ribs)
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(300, 130);
+                ctx.quadraticCurveTo(300, 200, 300, 245);
+                ctx.moveTo(300, 130);
+                ctx.quadraticCurveTo(240, 180, 185, 245);
+                ctx.moveTo(300, 130);
+                ctx.quadraticCurveTo(360, 180, 415, 245);
+                ctx.stroke();
+            }
+
+            // High premium watermark logo for class verification stamp
+            ctx.fillStyle = 'rgba(0, 87, 183, 0.85)';
+            ctx.font = 'bold 12px Arial';
+            ctx.fillText('HERITAGE GOODS STUDIO', 215, 540);
+            
+            ctx.fillStyle = 'rgba(255, 112, 67, 0.95)';
+            ctx.font = 'bold 14px "Jua", Arial';
+            ctx.fillText('국가유산 상품 제작소 인증 🏅', 215, 565);
+
+            return canvas.toDataURL('image/png');
+        }
+
+        // Draw Helper Round Rectangle
+        function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+            if (typeof radius === 'number') {
+                radius = {tl: radius, tr: radius, br: radius, bl: radius};
+            }
+            ctx.beginPath();
+            ctx.moveTo(x + radius.tl, y);
+            ctx.lineTo(x + width - radius.tr, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+            ctx.lineTo(x + width, y + height - radius.br);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+            ctx.lineTo(x + radius.bl, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+            ctx.lineTo(x, y + radius.tl);
+            ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+            ctx.closePath();
+            if (fill) {
+                ctx.fill();
+            }
+            if (stroke) {
+                ctx.stroke();
+            }
+        }
+
+        // Download result image
+        function downloadResult() {
+            if (!generatedImageUrl) return;
+            
+            const link = document.createElement('a');
+            link.href = generatedImageUrl;
+            link.download = `국가유산_캐릭터상품_${selectedGoods}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            createBanner('💾 상품 이미지를 태블릿에 완벽하게 저장했습니다!', 'success');
+        }
+    </script>
+</body>
+</html>
