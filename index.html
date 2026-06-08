@@ -342,6 +342,31 @@
             <text x="50" y="93" font-family="sans-serif" font-size="8" font-weight="bold" fill="#5C2A29" text-anchor="middle">양정동 배롱나무</text>
         </svg>`;
 
+        // Helper function to draw star shapes for style backgrounds
+        function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            let step = Math.PI / spikes;
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius)
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+            }
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+            ctx.fill();
+        }
+
         // Goods Type Selection Handler
         function selectGoods(id) {
             selectedGoods = id;
@@ -703,10 +728,7 @@
                     ]
                 }],
                 generationConfig: {
-                    responseModalities: ['IMAGE'],
-                    imageConfig: {
-                        aspectRatio: "1:1"
-                    }
+                    responseModalities: ['TEXT', 'IMAGE']
                 }
             };
 
@@ -750,7 +772,7 @@
         }
 
         // Smart pixel-level alpha masking & color transformation filter for simulated mockups
-        // This makes sure white backgrounds are removed AND styles are mapped gracefully (e.g. converting lines to gold foil)
+        // Features advanced background-color distance keying to prevent paper rectangle block artifacts
         function drawProcessedImage(ctx, img, destX, destY, destW, destH, mode) {
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = destW;
@@ -762,18 +784,42 @@
                 const imgData = tCtx.getImageData(0, 0, destW, destH);
                 const data = imgData.data;
                 
+                // Read the top-left corner pixel color as reference background paper color
+                const refR = data[0];
+                const refG = data[1];
+                const refB = data[2];
+                const refA = data[3];
+                const isRefTransparent = refA < 40;
+                
                 for (let i = 0; i < data.length; i += 4) {
                     const r = data[i];
                     const g = data[i+1];
                     const b = data[i+2];
                     const a = data[i+3];
                     
-                    // Simple whiteness formula
-                    const brightness = (r + g + b) / 3;
+                    if (a === 0) continue;
                     
-                    // If pixel is white or very bright (like typical drawing background paper), make it transparent
-                    if (brightness > 215) {
-                        data[i+3] = 0;
+                    let isBg = false;
+                    if (!isRefTransparent) {
+                        // Calculate color Euclidean distance to separate character from cream/white paper
+                        const dist = Math.sqrt(
+                            (r - refR) * (r - refR) + 
+                            (g - refG) * (g - refG) + 
+                            (b - refB) * (b - refB)
+                        );
+                        if (dist < 50) {
+                            isBg = true;
+                        }
+                    } else {
+                        // Fallback simple high-brightness mask
+                        const brightness = (r + g + b) / 3;
+                        if (brightness > 235) {
+                            isBg = true;
+                        }
+                    }
+                    
+                    if (isBg) {
+                        data[i+3] = 0; // Make paper transparent
                     } else if (a > 30) {
                         // Blend and stylize drawing pixels
                         if (mode === 'gold') {
@@ -827,30 +873,97 @@
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, 600, 600);
 
-            // Special bedroom background effect: glowing fairy lights
-            if (selectedStyle === 'bedroom') {
-                ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+            // Style-specific decorations (Instead of Busan wave always)
+            if (selectedStyle === 'cozy') {
+                // Draw warm bokeh circles
+                ctx.fillStyle = 'rgba(255, 224, 178, 0.4)';
+                ctx.beginPath(); ctx.arc(100, 120, 40, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(520, 180, 60, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(480, 480, 50, 0, Math.PI*2); ctx.fill();
+                // Cozy stars
+                ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
+                drawStar(ctx, 150, 450, 5, 12, 6);
+                drawStar(ctx, 420, 100, 5, 15, 7);
+            } else if (selectedStyle === 'beach') {
+                // Sand shore line at the bottom
+                ctx.fillStyle = '#FFE0B2'; 
+                ctx.beginPath();
+                ctx.moveTo(0, 500);
+                ctx.bezierCurveTo(200, 460, 400, 540, 600, 480);
+                ctx.lineTo(600, 600);
+                ctx.lineTo(0, 600);
+                ctx.closePath();
+                ctx.fill();
+                // Soft ocean wave line deco
+                ctx.strokeStyle = 'rgba(2, 132, 199, 0.15)';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(0, 480);
+                ctx.bezierCurveTo(200, 440, 400, 520, 600, 460);
+                ctx.stroke();
+                // Beach star
+                ctx.fillStyle = 'rgba(244, 63, 94, 0.2)';
+                drawStar(ctx, 80, 530, 5, 14, 7);
+            } else if (selectedStyle === 'bedroom') {
+                // Warm fairy lights decoration
+                const colors = ['rgba(254, 240, 138, 0.5)', 'rgba(253, 186, 116, 0.5)', 'rgba(244, 114, 182, 0.4)'];
                 for (let i = 0; i < 6; i++) {
+                    ctx.fillStyle = colors[i % colors.length];
                     ctx.beginPath();
-                    ctx.arc(80 + i * 90, 70 + (i % 2) * 30, 25, 0, Math.PI * 2);
+                    ctx.arc(80 + i * 90, 70 + (i % 2) * 25, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Bright filament center
+                    ctx.fillStyle = '#FFF';
+                    ctx.beginPath();
+                    ctx.arc(80 + i * 90, 70 + (i % 2) * 25, 6, 0, Math.PI * 2);
                     ctx.fill();
                 }
-                // Fairy Light string link
-                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-                ctx.lineWidth = 1.5;
+                // Light wire
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+                ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(0, 70);
-                ctx.bezierCurveTo(150, 130, 300, 50, 600, 90);
+                ctx.bezierCurveTo(150, 130, 300, 40, 600, 90);
                 ctx.stroke();
+                // Cozy stars on the side
+                ctx.fillStyle = 'rgba(253, 186, 116, 0.3)';
+                drawStar(ctx, 120, 450, 5, 10, 5);
+                drawStar(ctx, 480, 480, 5, 12, 6);
+            } else if (selectedStyle === 'studio') {
+                // Spotlight cones
+                const studioGrad = ctx.createRadialGradient(300, 0, 10, 300, 0, 500);
+                studioGrad.addColorStop(0, 'rgba(255,255,255,0.12)');
+                studioGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = studioGrad;
+                ctx.beginPath();
+                ctx.moveTo(300, 0);
+                ctx.lineTo(0, 600);
+                ctx.lineTo(600, 600);
+                ctx.closePath();
+                ctx.fill();
+                // Clean border crosshairs representing studio camera lens guide
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(30, 300); ctx.lineTo(60, 300);
+                ctx.moveTo(570, 300); ctx.lineTo(540, 300);
+                ctx.moveTo(300, 30); ctx.lineTo(300, 60);
+                ctx.moveTo(300, 570); ctx.lineTo(300, 540);
+                ctx.stroke();
+            } else if (selectedStyle === 'nature') {
+                // Organic leaf shapes at corners
+                ctx.fillStyle = 'rgba(74, 117, 89, 0.12)';
+                ctx.beginPath();
+                ctx.ellipse(50, 50, 60, 30, Math.PI/4, 0, Math.PI*2);
+                ctx.ellipse(100, 70, 45, 22, Math.PI/6, 0, Math.PI*2);
+                ctx.ellipse(40, 110, 40, 20, Math.PI/3, 0, Math.PI*2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(550, 50, 60, 30, -Math.PI/4, 0, Math.PI*2);
+                ctx.ellipse(500, 70, 45, 22, -Math.PI/6, 0, Math.PI*2);
+                ctx.ellipse(560, 110, 40, 20, -Math.PI/3, 0, Math.PI*2);
+                ctx.fill();
             }
-
-            // Draw soft ocean wave decor for 부산 vibe
-            ctx.globalAlpha = 0.08;
-            ctx.fillStyle = '#0057B7';
-            ctx.font = 'bold 90px Arial';
-            ctx.fillText('🌊', 60, 210);
-            ctx.fillText('⚓', 440, 470);
-            ctx.globalAlpha = 1.0;
 
             // Store details of loaded student drawing
             let img = new Image();
@@ -1222,7 +1335,7 @@
                 ctx.fill();
 
                 // Flat drawing integrated into one of the panels cleanly
-                drawProcessedImage(ctx, img, 240, 180, 120, 120, 'normal');
+                drawProcessedImage(ctx, img, 240, 150, 120, 120, 'normal');
 
                 // Curved panel division lines (umbrella ribs)
                 ctx.strokeStyle = 'rgba(255,255,255,0.2)';
